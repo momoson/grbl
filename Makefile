@@ -91,6 +91,7 @@ $(BUILDDIR)/main.elf: $(OBJECTS)
 grbl.hex: $(BUILDDIR)/main.elf
 	rm -f grbl.hex
 	avr-objcopy -j .text -j .data -O ihex $(BUILDDIR)/main.elf grbl.hex
+	avr-size --mcu=$(DEVICE) --format=avr $(BUILDDIR)/main.elf
 	avr-size --format=berkeley $(BUILDDIR)/main.elf
 # If you have an EEPROM section, you must also create a hex file for the
 # EEPROM and add it to the "flash" target.
