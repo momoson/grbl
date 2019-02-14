@@ -303,16 +303,8 @@ void report_gcode_modes()
 
   report_util_gcode_modes_M();
 
-  #ifdef ENABLE_M7
-    if (gc_state.modal.coolant) { // Note: Multiple coolant states may be active at the same time.
-      if (gc_state.modal.coolant & PL_COND_FLAG_COOLANT_MIST) { report_util_gcode_modes_M(); serial_write('7'); }
-      if (gc_state.modal.coolant & PL_COND_FLAG_COOLANT_FLOOD) { report_util_gcode_modes_M(); serial_write('8'); }
-    } else { report_util_gcode_modes_M(); serial_write('9'); }
-  #else
-    report_util_gcode_modes_M();
-    if (gc_state.modal.coolant) { serial_write('8'); }
-    else { serial_write('9'); }
-  #endif
+  report_util_gcode_modes_M();
+  serial_write('9');
 
   #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
     if (sys.override_ctrl == OVERRIDE_PARKING_MOTION) { 
@@ -572,15 +564,6 @@ void report_realtime_status()
       print_uint8_base10(sys.f_override);
       serial_write(',');
       print_uint8_base10(sys.r_override);
-
-      uint8_t cl_state = coolant_get_state();
-      if (cl_state) {
-        printPgmString(PSTR("|A:"));
-        if (cl_state & COOLANT_STATE_FLOOD) { serial_write('F'); }
-        #ifdef ENABLE_M7
-          if (cl_state & COOLANT_STATE_MIST) { serial_write('M'); }
-        #endif
-      }  
     }
   #endif
 

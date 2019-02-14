@@ -31,7 +31,7 @@
 DEVICE     ?= atmega328p
 CLOCK      = 16000000
 PROGRAMMER ?= -c arduino -P /dev/arduino
-SOURCE    = main.c motion_control.c gcode.c coolant_control.c serial.c \
+SOURCE    = main.c motion_control.c gcode.c serial.c \
              protocol.c stepper.c eeprom.c settings.c planner.c nuts_bolts.c limits.c jog.c\
              print.c probe.c report.c system.c
 BUILDDIR = build

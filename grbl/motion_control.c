@@ -202,7 +202,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
   // TODO: Move the pin-specific LIMIT_PIN call to limits.c as a function.
   #ifdef LIMITS_TWO_SWITCHES_ON_AXES
     if (limits_get_state()) {
-      mc_reset(); // Issue system reset and ensure coolant are shutdown.
+      mc_reset(); // Issue system reset.
       system_set_exec_alarm(EXEC_ALARM_HARD_LIMIT);
       return;
     }
@@ -360,9 +360,6 @@ void mc_reset()
   // Only this function can set the system reset. Helps prevent multiple kill calls.
   if (bit_isfalse(sys_rt_exec_state, EXEC_RESET)) {
     system_set_exec_state_flag(EXEC_RESET);
-
-    // Kill coolant.
-    coolant_stop();
 
     // Kill steppers only if in any motion state, i.e. cycle, actively holding, or homing.
     // NOTE: If steppers are kept enabled via the step idle delay setting, this also keeps

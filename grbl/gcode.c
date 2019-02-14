@@ -252,20 +252,6 @@ uint8_t gc_execute_line(char *line)
               default: gc_block.modal.program_flow = int_value; // Program end and reset
             }
             break;
-          #ifdef ENABLE_M7
-            case 7: case 8: case 9:
-          #else
-            case 8: case 9:
-          #endif
-            word_bit = MODAL_GROUP_M8;
-            switch(int_value) {
-              #ifdef ENABLE_M7
-                case 7: gc_block.modal.coolant |= COOLANT_MIST_ENABLE; break;
-              #endif
-              case 8: gc_block.modal.coolant |= COOLANT_FLOOD_ENABLE; break;
-              case 9: gc_block.modal.coolant = COOLANT_DISABLE; break; // M9 disables both M7 and M8.
-            }
-            break;
           #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
             case 56:
               word_bit = MODAL_GROUP_M9;
@@ -421,7 +407,6 @@ uint8_t gc_execute_line(char *line)
 
   // [6. Change tool ]: N/A
   // [7. Spindle control ]: N/A
-  // [8. Coolant control ]: N/A
   // [9. Override control ]: Not supported except for a Grbl-only parking motion override control.
   #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
     if (bit_istrue(command_words,bit(MODAL_GROUP_M9))) { // Already set as enabled in parser.
@@ -843,9 +828,6 @@ uint8_t gc_execute_line(char *line)
     if (command_words & ~(bit(MODAL_GROUP_G3) | bit(MODAL_GROUP_G6) | bit(MODAL_GROUP_G0)) ) { FAIL(STATUS_INVALID_JOG_COMMAND) };
     if (!(gc_block.non_modal_command == NON_MODAL_ABSOLUTE_OVERRIDE || gc_block.non_modal_command == NON_MODAL_NO_ACTION)) { FAIL(STATUS_INVALID_JOG_COMMAND); }
 
-    // Initialize planner data to current coolant modal state.
-    plan_data.condition = gc_state.modal.coolant;
-
     uint8_t status = jog_execute(&plan_data, &gc_block);
     if (status == STATUS_OK) { memcpy(gc_state.position, gc_block.values.xyz, sizeof(gc_block.values.xyz)); }
     return(status);
@@ -887,15 +869,6 @@ uint8_t gc_execute_line(char *line)
   gc_state.tool = gc_block.values.t;
 
   // [6. Change tool ]: NOT SUPPORTED
-
-  // [8. Coolant control ]:
-  if (gc_state.modal.coolant != gc_block.modal.coolant) {
-    // NOTE: Coolant M-codes are modal. Only one command per line is allowed. But, multiple states
-    // can exist at the same time, while coolant disable clears all states.
-    coolant_sync(gc_block.modal.coolant);
-    gc_state.modal.coolant = gc_block.modal.coolant;
-  }
-  pl_data->condition |= gc_state.modal.coolant; // Set condition flag for planner use.
 
   // [9. Override control ]: NOT SUPPORTED. Always enabled. Except for a Grbl-only parking control.
   #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
@@ -1039,7 +1012,6 @@ uint8_t gc_execute_line(char *line)
       gc_state.modal.feed_rate = FEED_RATE_MODE_UNITS_PER_MIN;
       // gc_state.modal.cutter_comp = CUTTER_COMP_DISABLE; // Not supported.
       gc_state.modal.coord_select = 0; // G54
-      gc_state.modal.coolant = COOLANT_DISABLE;
       #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
         #ifdef DEACTIVATE_PARKING_UPON_INIT
           gc_state.modal.override = OVERRIDE_DISABLED;
@@ -1053,11 +1025,10 @@ uint8_t gc_execute_line(char *line)
         sys.r_override = DEFAULT_RAPID_OVERRIDE;
       #endif
 
-      // Execute coordinate change and coolant stop.
+      // Execute coordinate change.
       if (sys.state != STATE_CHECK_MODE) {
         if (!(settings_read_coord_data(gc_state.modal.coord_select,gc_state.coord_system))) { FAIL(STATUS_SETTING_READ_FAIL); }
         system_flag_wco_change(); // Set to refresh immediately just in case something altered.
-        coolant_set_state(COOLANT_DISABLE);
       }
       report_feedback_message(MESSAGE_PROGRAM_END);
     }
@@ -1089,7 +1060,6 @@ uint8_t gc_execute_line(char *line)
    group 6 = {M6} (Tool change)
    group 7 = {G41, G42} cutter radius compensation (G40 is supported)
    group 8 = {G43} tool length offset (G43.1/G49 are supported)
-   group 8 = {M7*} enable mist coolant (* Compile-option)
    group 9 = {M48, M49, M56*} enable/disable override switches (* Compile-option)
    group 10 = {G98, G99} return mode canned cycles
    group 13 = {G61.1, G64} path control mode (G61 is supported)

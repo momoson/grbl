@@ -48,8 +48,8 @@
 #define EXEC_ALARM_HOMING_FAIL_PULLOFF  8
 #define EXEC_ALARM_HOMING_FAIL_APPROACH 9
 
-// Override bit maps. Realtime bitflags to control feed, rapid and coolant overrides.
-// Coolant and feed/rapids are separated into two controlling flag variables.
+// Override bit maps. Realtime bitflags to control feed, rapid overrides.
+// Feed/rapids are separated into two controlling flag variables.
 #define EXEC_FEED_OVR_RESET         bit(0)
 #define EXEC_FEED_OVR_COARSE_PLUS   bit(1)
 #define EXEC_FEED_OVR_COARSE_MINUS  bit(2)
@@ -59,9 +59,6 @@
 #define EXEC_RAPID_OVR_MEDIUM       bit(6)
 #define EXEC_RAPID_OVR_LOW          bit(7)
 // #define EXEC_RAPID_OVR_EXTRA_LOW   bit(*) // *NOT SUPPORTED*
-
-#define EXEC_COOLANT_FLOOD_OVR_TOGGLE  bit(6)
-#define EXEC_COOLANT_MIST_OVR_TOGGLE   bit(7)
 
 // Define system state bit map. The state variable primarily tracks the individual functions
 // of Grbl to manage each without overlapping. It is also used as a messaging flag for
@@ -135,7 +132,6 @@ extern volatile uint8_t sys_probe_state;   // Probing state value.  Used to coor
 extern volatile uint8_t sys_rt_exec_state;   // Global realtime executor bitflag variable for state management. See EXEC bitmasks.
 extern volatile uint8_t sys_rt_exec_alarm;   // Global realtime executor bitflag variable for setting various alarms.
 extern volatile uint8_t sys_rt_exec_motion_override; // Global realtime executor bitflag variable for motion-based overrides.
-extern volatile uint8_t sys_rt_exec_accessory_override; // Global realtime executor bitflag variable for coolant overrides.
 
 #ifdef DEBUG
   #define EXEC_DEBUG_REPORT  bit(0)

@@ -41,10 +41,7 @@
 #define PL_COND_FLAG_SYSTEM_MOTION     bit(1) // Single motion. Circumvents planner state. Used by home/park.
 #define PL_COND_FLAG_NO_FEED_OVERRIDE  bit(2) // Motion does not honor feed override.
 #define PL_COND_FLAG_INVERSE_TIME      bit(3) // Interprets feed rate value as inverse time when set.
-#define PL_COND_FLAG_COOLANT_FLOOD     bit(6)
-#define PL_COND_FLAG_COOLANT_MIST      bit(7)
 #define PL_COND_MOTION_MASK    (PL_COND_FLAG_RAPID_MOTION|PL_COND_FLAG_SYSTEM_MOTION|PL_COND_FLAG_NO_FEED_OVERRIDE)
-#define PL_COND_ACCESSORY_MASK (PL_COND_FLAG_COOLANT_FLOOD|PL_COND_FLAG_COOLANT_MIST)
 
 
 // This struct stores a linear movement of a g-code block motion with its critical "nominal" values
