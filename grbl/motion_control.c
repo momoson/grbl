@@ -65,15 +65,7 @@ void mc_line(float *target, plan_line_data_t *pl_data)
   } while (1);
 
   // Plan and queue motion into planner buffer
-  if (plan_buffer_line(target, pl_data) == PLAN_EMPTY_BLOCK) {
-    if (bit_istrue(settings.flags,BITFLAG_LASER_MODE)) {
-      // Correctly set spindle state, if there is a coincident position passed. Forces a buffer
-      // sync while in M3 laser mode only.
-      if (pl_data->condition & PL_COND_FLAG_SPINDLE_CW) {
-        spindle_sync(PL_COND_FLAG_SPINDLE_CW, pl_data->spindle_speed);
-      }
-    }
-  }
+  if (plan_buffer_line(target, pl_data) == PLAN_EMPTY_BLOCK); 
 }
 
 
@@ -210,7 +202,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
   // TODO: Move the pin-specific LIMIT_PIN call to limits.c as a function.
   #ifdef LIMITS_TWO_SWITCHES_ON_AXES
     if (limits_get_state()) {
-      mc_reset(); // Issue system reset and ensure spindle and coolant are shutdown.
+      mc_reset(); // Issue system reset and ensure coolant are shutdown.
       system_set_exec_alarm(EXEC_ALARM_HARD_LIMIT);
       return;
     }
@@ -369,8 +361,7 @@ void mc_reset()
   if (bit_isfalse(sys_rt_exec_state, EXEC_RESET)) {
     system_set_exec_state_flag(EXEC_RESET);
 
-    // Kill spindle and coolant.
-    spindle_stop();
+    // Kill coolant.
     coolant_stop();
 
     // Kill steppers only if in any motion state, i.e. cycle, actively holding, or homing.
