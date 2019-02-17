@@ -60,8 +60,32 @@ uint8_t system_control_get_state()
 // only the realtime command execute variable to have the main program execute these when
 // its ready. This works exactly like the character-based realtime commands when picked off
 // directly from the incoming serial data stream.
-ISR(CONTROL_INT_vect)
+ISR(CONTROL_INT_vect) // also ISR(A_LIMIT_INT_vect)
 {
+#ifdef ACTIVE_A_AXIS
+  if(A_LIMIT_PCMSK & A_LIMIT_MASK){ // the limit is activated
+#ifndef ENABLE_SOFTWARE_DEBOUNCE
+    // Ignore limit switches if already in an alarm state or in-process of executing an alarm.
+    // When in the alarm state, Grbl should have been reset or will force a reset, so any pending
+    // moves in the planner and serial buffers are all cleared and newly sent blocks will be
+    // locked out until a homing cycle or a kill lock command. Allows the user to disable the hard
+    // limit setting if their limits are constantly triggering after a reset and move their axes.
+    if (sys.state != STATE_ALARM) {
+      if (!(sys_rt_exec_alarm)) {
+        //Contrary to other limit pins, alarm state is only entered when the end stop keeps its changed value. This is done, because it is not possible to determine whether the end stop or the control pins changed their value.
+        // Check limit pin state.
+        if (limits_get_state()) {
+          mc_reset(); // Initiate system kill.
+          system_set_exec_alarm(EXEC_ALARM_HARD_LIMIT); // Indicate hard limit critical event
+        }
+      }
+    }
+#else // OPTIONAL: Software debounce limit pin routine.
+    // Upon limit pin change, enable watchdog timer to create a short delay. 
+    if (!(WDTCSR & (1<<WDIE))) { WDTCSR |= (1<<WDIE); }
+#endif
+  }
+#endif
   uint8_t pin = system_control_get_state();
   if (pin) {
     if (bit_istrue(pin,CONTROL_PIN_INDEX_RESET)) {
