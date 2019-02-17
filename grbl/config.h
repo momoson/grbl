@@ -177,14 +177,6 @@
 // #define INVERT_CONTROL_PIN_MASK CONTROL_MASK // Default disabled. Uncomment to disable.
 // #define INVERT_CONTROL_PIN_MASK ((1<<CONTROL_SAFETY_DOOR_BIT)|(1<<CONTROL_RESET_BIT)) // Default disabled.
 
-// Inverts select limit pin states based on the following mask. This effects all limit pin functions,
-// such as hard limits and homing. However, this is different from overall invert limits setting.
-// This build option will invert only the limit pins defined here, and then the invert limits setting
-// will be applied to all of them. This is useful when a user has a mixed set of limit pins with both
-// normally-open(NO) and normally-closed(NC) switches installed on their machine.
-// NOTE: PLEASE DO NOT USE THIS, unless you have a situation that needs it.
-// #define INVERT_LIMIT_PIN_MASK ((1<<X_LIMIT_BIT)|(1<<Y_LIMIT_BIT)) // Default disabled. Uncomment to enable.
-
 // When Grbl powers-cycles or is hard reset with the Arduino reset button, Grbl boots up with no ALARM
 // by default. This is to make it as simple as possible for new users to start using Grbl. When homing
 // is enabled and a user has installed limit switches, Grbl will boot up in an ALARM state to indicate
