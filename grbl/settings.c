@@ -321,7 +321,8 @@ uint8_t get_step_pin_mask(uint8_t axis_idx)
 {
   if ( axis_idx == X_AXIS ) { return((1<<X_STEP_BIT)); }
   if ( axis_idx == Y_AXIS ) { return((1<<Y_STEP_BIT)); }
-  return((1<<Z_STEP_BIT));
+  if ( axis_idx == Z_AXIS ) { return((1<<Z_STEP_BIT)); }
+  return((1<<A_STEP_BIT));
 }
 
 
@@ -330,7 +331,57 @@ uint8_t get_direction_pin_mask(uint8_t axis_idx)
 {
   if ( axis_idx == X_AXIS ) { return((1<<X_DIRECTION_BIT)); }
   if ( axis_idx == Y_AXIS ) { return((1<<Y_DIRECTION_BIT)); }
-  return((1<<Z_DIRECTION_BIT));
+  if ( axis_idx == Z_AXIS ) { return((1<<Z_DIRECTION_BIT)); }
+  return((1<<A_DIRECTION_BIT));
+}
+
+// Returns pointer to the DDR register of the direction pin
+volatile uint8_t * get_direction_ddr(uint8_t axis_idx)
+{
+  if ( axis_idx == A_AXIS ) { return & A_DIRECTION_DDR; }
+  return & DIRECTION_DDR;
+}
+
+// Returns pointer to the DDR register of the step pin
+volatile uint8_t * get_step_ddr(uint8_t axis_idx)
+{
+  if ( axis_idx == A_AXIS ) { return & A_STEP_DDR; }
+  return & STEP_DDR;
+}
+
+// Returns pointer to the DDR register of the limit pin
+volatile uint8_t * get_limit_ddr(uint8_t axis_idx)
+{
+  if ( axis_idx == A_AXIS ) { return & A_LIMIT_DDR; }
+  return & LIMIT_DDR;
+}
+
+// Returns pointer to the PORT register of the direction pin
+volatile uint8_t * get_direction_port(uint8_t axis_idx)
+{
+  if ( axis_idx == A_AXIS ) { return & A_DIRECTION_PORT; }
+  return & DIRECTION_PORT;
+}
+
+// Returns pointer to the PORT register of the step pin
+volatile uint8_t * get_step_port(uint8_t axis_idx)
+{
+  if ( axis_idx == A_AXIS ) { return & A_STEP_PORT; }
+  return & STEP_PORT;
+}
+
+// Returns pointer to the PORT register of the limit pin
+volatile uint8_t * get_limit_port(uint8_t axis_idx)
+{
+  if ( axis_idx == A_AXIS ) { return & A_LIMIT_PORT; }
+  return & LIMIT_PORT;
+}
+
+// Returns pin register of the limit pin
+uint8_t get_limit_pin(uint8_t axis_idx)
+{
+  if ( axis_idx == A_AXIS ) { return A_LIMIT_PIN; }
+  return LIMIT_PIN;
 }
 
 
@@ -339,5 +390,6 @@ uint8_t get_limit_pin_mask(uint8_t axis_idx)
 {
   if ( axis_idx == X_AXIS ) { return((1<<X_LIMIT_BIT)); }
   if ( axis_idx == Y_AXIS ) { return((1<<Y_LIMIT_BIT)); }
-  return((1<<Z_LIMIT_BIT));
+  if ( axis_idx == Z_AXIS ) { return((1<<Z_LIMIT_BIT)); }
+  return((1<<A_LIMIT_BIT));
 }
