@@ -33,16 +33,22 @@
 void limits_init()
 {
   LIMIT_DDR &= ~(LIMIT_MASK); // Set as input pins
+  A_LIMIT_DDR &= ~(A_LIMIT_MASK);
+
 
   #ifdef DISABLE_LIMIT_PIN_PULL_UP
     LIMIT_PORT &= ~(LIMIT_MASK); // Normal low operation. Requires external pull-down.
+    A_LIMIT_PORT &= ~(A_LIMIT_MASK); // Normal low operation. Requires external pull-down.
   #else
     LIMIT_PORT |= (LIMIT_MASK);  // Enable internal pull-up resistors. Normal high operation.
+    A_LIMIT_PORT |= (A_LIMIT_MASK);  // Enable internal pull-up resistors. Normal high operation.
   #endif
 
   if (bit_istrue(settings.flags,BITFLAG_HARD_LIMIT_ENABLE)) {
     LIMIT_PCMSK |= LIMIT_MASK; // Enable specific pins of the Pin Change Interrupt
     PCICR |= (1 << LIMIT_INT); // Enable Pin Change Interrupt
+    A_LIMIT_PCMSK |= A_LIMIT_MASK; // Enable specific pin of the Pin Change Interrupt
+    // PCIICR for A limit is already enabled by Control
   } else {
     limits_disable();
   }
@@ -60,6 +66,7 @@ void limits_disable()
 {
   LIMIT_PCMSK &= ~LIMIT_MASK;  // Disable specific pins of the Pin Change Interrupt
   PCICR &= ~(1 << LIMIT_INT);  // Disable Pin Change Interrupt
+  A_LIMIT_PCMSK &= ~A_LIMIT_MASK; // Disable specific pin of the Pin Change Interrupt
 }
 
 
