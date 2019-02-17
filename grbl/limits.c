@@ -77,13 +77,26 @@ uint8_t limits_get_state()
 {
   uint8_t limit_state = 0;
   uint8_t pin = (LIMIT_PIN & LIMIT_MASK);
-  if (bit_isfalse(settings.flags,BITFLAG_INVERT_LIMIT_PINS)) { pin ^= LIMIT_MASK; }
+  #ifdef ACTIVE_A_AXIS
+    uint8_t a_pin = (A_LIMIT_PIN & A_LIMIT_MASK);
+  #endif
+  if (bit_isfalse(settings.flags,BITFLAG_INVERT_LIMIT_PINS)) { 
+    pin ^= LIMIT_MASK; 
+    #ifdef ACTIVE_A_AXIS
+    a_pin ^= A_LIMIT_MASK;
+    #endif
+  }
   if (pin) {
     uint8_t idx;
     for (idx=0; idx<N_AXIS; idx++) {
       if (pin & get_limit_pin_mask(idx)) { limit_state |= (1 << idx); }
     }
   }
+#ifdef ACTIVE_A_AXIS
+  if (a_pin) {
+    limit_state |= (1<<A_AXIS);
+  }
+#endif
   return(limit_state);
 }
 
