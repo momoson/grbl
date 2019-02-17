@@ -47,15 +47,29 @@ const __flash settings_t defaults = {\
     .steps_per_mm[X_AXIS] = DEFAULT_X_STEPS_PER_MM,
     .steps_per_mm[Y_AXIS] = DEFAULT_Y_STEPS_PER_MM,
     .steps_per_mm[Z_AXIS] = DEFAULT_Z_STEPS_PER_MM,
+#ifdef ACTIVE_A_AXIS
+    .steps_per_mm[A_AXIS] = DEFAULT_A_STEPS_PER_MM,
+#endif
     .max_rate[X_AXIS] = DEFAULT_X_MAX_RATE,
     .max_rate[Y_AXIS] = DEFAULT_Y_MAX_RATE,
     .max_rate[Z_AXIS] = DEFAULT_Z_MAX_RATE,
+#ifdef ACTIVE_A_AXIS
+    .max_rate[A_AXIS] = DEFAULT_A_MAX_RATE,
+#endif
     .acceleration[X_AXIS] = DEFAULT_X_ACCELERATION,
     .acceleration[Y_AXIS] = DEFAULT_Y_ACCELERATION,
     .acceleration[Z_AXIS] = DEFAULT_Z_ACCELERATION,
+#ifdef ACTIVE_A_AXIS
+    .acceleration[A_AXIS] = DEFAULT_A_ACCELERATION,
+#endif
     .max_travel[X_AXIS] = (-DEFAULT_X_MAX_TRAVEL),
     .max_travel[Y_AXIS] = (-DEFAULT_Y_MAX_TRAVEL),
-    .max_travel[Z_AXIS] = (-DEFAULT_Z_MAX_TRAVEL)};
+    .max_travel[Z_AXIS] = (-DEFAULT_Z_MAX_TRAVEL)
+#ifdef ACTIVE_A_AXIS
+    ,
+    .max_travel[A_AXIS] = (-DEFAULT_A_MAX_TRAVEL)
+#endif
+     };
 
 
 // Method to store startup lines into EEPROM
@@ -196,7 +210,7 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
     parameter -= AXIS_SETTINGS_START_VAL;
     uint8_t set_idx = 0;
     while (set_idx < AXIS_N_SETTINGS) {
-      if (parameter < N_AXIS) {
+      if (parameter < N_AXIS_TOTAL) {
         // Valid axis setting found.
         switch (set_idx) {
           case 0:
@@ -217,7 +231,7 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
         break; // Exit while-loop after setting has been configured and proceed to the EEPROM write call.
       } else {
         set_idx++;
-        // If axis index greater than N_AXIS or setting index greater than number of axis settings, error out.
+        // If axis index greater than N_AXIS_TOTAL or setting index greater than number of axis settings, error out.
         if ((parameter < AXIS_SETTINGS_INCREMENT) || (set_idx == AXIS_N_SETTINGS)) { return(STATUS_INVALID_STATEMENT); }
         parameter -= AXIS_SETTINGS_INCREMENT;
       }
