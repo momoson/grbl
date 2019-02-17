@@ -29,10 +29,16 @@
 
 // Axis array index values. Must start with 0 and be continuous.
 #define N_AXIS 3 // Number of axes
+#ifdef ACTIVE_A_AXIS // the A axis is not on the usual port like all other axes. Hence, treatment is slightly different for some tasks. 
+                     // If treatment is different for one task, N_AXIS is used, while N_AXIS_TOTAL is used when treatment is same.
+  #define N_AXIS_TOTAL 4
+#endif
 #define X_AXIS 0 // Axis indexing value.
 #define Y_AXIS 1
 #define Z_AXIS 2
-// #define A_AXIS 3
+#ifdef ACTIVE_A_AXIS
+  #define A_AXIS 3
+#endif
 
 // CoreXY motor assignments. DO NOT ALTER.
 // NOTE: If the A and B motor axis bindings are changed, this effects the CoreXY equations.
