@@ -553,5 +553,8 @@
 
 // Paste default settings definitions here.
 
+// activate fourth axis
+#define ACTIVE_A_AXIS
+
 
 #endif

@@ -33,6 +33,19 @@
   #define SERIAL_RX     USART_RX_vect
   #define SERIAL_UDRE   USART_UDRE_vect
 
+  #ifdef ACTIVE_A_AXIS
+    // Define pins for fourth axis
+    #define A_STEP_DDR      DDRB
+    #define A_STEP_PORT     PORTB
+    #define A_STEP_BIT      4 // Uno Digital Pin 12
+    #define A_STEP_MASK     (1<<A_STEP_BIT)
+
+    #define A_DIRECTION_DDR      DDRB
+    #define A_DIRECTION_PORT     PORTB
+    #define A_DIRECTION_BIT      5 // Uno Digital Pin 13
+    #define A_DIRECTION_MASK     (1<<A_DIRECTION_BIT)
+  #endif
+
   // Define step pulse output pins. NOTE: All step bit pins must be on the same port.
   #define STEP_DDR        DDRD
   #define STEP_PORT       PORTD
@@ -82,6 +95,19 @@
   #define CONTROL_PCMSK     PCMSK1 // Pin change interrupt register
   #define CONTROL_MASK      ((1<<CONTROL_RESET_BIT)|(1<<CONTROL_FEED_HOLD_BIT)|(1<<CONTROL_CYCLE_START_BIT)|(1<<CONTROL_SAFETY_DOOR_BIT))
   #define CONTROL_INVERT_MASK   CONTROL_MASK // May be re-defined to only invert certain control pins.
+
+  #ifdef ACTIVE_A_AXIS
+    // Define limit for fourth axis
+    #define A_LIMIT_DDR      CONTROL_DDR
+    #define A_LIMIT_PIN      CONTROL_PIN
+    #define A_LIMIT_PORT     CONTROL_PORT
+    #define A_LIMIT_BIT      4 // Uno Analog Pin 4
+    #define A_LIMIT_MASK     (1<<A_LIMIT_BIT)
+    #define A_LIMIT_INT      CONTROL_INT
+    #define A_LIMIT_INT_vect CONTROL_INT_vect
+    #define A_LIMIT_PCMSK    CONTROL_PCMSK
+  #endif
+
 
   // Define probe switch input pin.
   #define PROBE_DDR       DDRC
