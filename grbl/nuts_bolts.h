@@ -32,6 +32,8 @@
 #ifdef ACTIVE_A_AXIS // the A axis is not on the usual port like all other axes. Hence, treatment is slightly different for some tasks. 
                      // If treatment is different for one task, N_AXIS is used, while N_AXIS_TOTAL is used when treatment is same.
   #define N_AXIS_TOTAL 4
+#else
+  #define N_AXIS_TOTAL 3
 #endif
 #define X_AXIS 0 // Axis indexing value.
 #define Y_AXIS 1
@@ -50,11 +52,11 @@
 
 // Useful macros
 #define clear_vector(a) memset(a, 0, sizeof(a))
-#define clear_vector_float(a) memset(a, 0.0, sizeof(float)*N_AXIS)
-// #define clear_vector_long(a) memset(a, 0.0, sizeof(long)*N_AXIS)
+#define clear_vector_float(a) memset(a, 0.0, sizeof(float)*N_AXIS_TOTAL)
+// #define clear_vector_long(a) memset(a, 0.0, sizeof(long)*N_AXIS_TOTAL)
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
-#define isequal_position_vector(a,b) !(memcmp(a, b, sizeof(float)*N_AXIS))
+#define isequal_position_vector(a,b) !(memcmp(a, b, sizeof(float)*N_AXIS_TOTAL))
 
 // Bit field and masking macros
 #define bit(n) (1 << n)

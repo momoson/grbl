@@ -64,7 +64,7 @@
 // discarded when entirely consumed and completed by the segment buffer. Also, AMASS alters this
 // data for its own use.
 typedef struct {
-  uint32_t steps[N_AXIS];
+  uint32_t steps[N_AXIS_TOTAL];
   uint32_t step_event_count;
   uint8_t direction_bits;
 } st_block_t;
@@ -101,7 +101,7 @@ typedef struct {
   uint8_t step_outbits;         // The next stepping-bits to be output
   uint8_t dir_outbits;
   #ifdef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
-    uint32_t steps[N_AXIS];
+    uint32_t steps[N_AXIS_TOTAL];
   #endif
 
   uint16_t step_count;       // Steps remaining in line segment motion
@@ -619,13 +619,13 @@ void st_prep_buffer()
         st_prep_block->direction_bits = pl_block->direction_bits;
         uint8_t idx;
         #ifndef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
-          for (idx=0; idx<N_AXIS; idx++) { st_prep_block->steps[idx] = (pl_block->steps[idx] << 1); }
+          for (idx=0; idx<N_AXIS_TOTAL; idx++) { st_prep_block->steps[idx] = (pl_block->steps[idx] << 1); }
           st_prep_block->step_event_count = (pl_block->step_event_count << 1);
         #else
           // With AMASS enabled, simply bit-shift multiply all Bresenham data by the max AMASS
           // level, such that we never divide beyond the original data anywhere in the algorithm.
           // If the original data is divided, we can lose a step from integer roundoff.
-          for (idx=0; idx<N_AXIS; idx++) { st_prep_block->steps[idx] = pl_block->steps[idx] << MAX_AMASS_LEVEL; }
+          for (idx=0; idx<N_AXIS_TOTAL; idx++) { st_prep_block->steps[idx] = pl_block->steps[idx] << MAX_AMASS_LEVEL; }
           st_prep_block->step_event_count = pl_block->step_event_count << MAX_AMASS_LEVEL;
         #endif
 

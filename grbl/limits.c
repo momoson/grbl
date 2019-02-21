@@ -175,11 +175,11 @@ void limits_go_home(uint8_t cycle_mask)
 
   // Initialize variables used for homing computations.
   uint8_t n_cycle = (2*N_HOMING_LOCATE_CYCLE+1);
-  uint8_t step_pin[N_AXIS];
-  float target[N_AXIS];
+  uint8_t step_pin[N_AXIS_TOTAL];
+  float target[N_AXIS_TOTAL];
   float max_travel = 0.0;
   uint8_t idx;
-  for (idx=0; idx<N_AXIS; idx++) {
+  for (idx=0; idx<N_AXIS_TOTAL; idx++) {
     // Initialize step pin masks
     step_pin[idx] = get_step_pin_mask(idx);
 
@@ -202,7 +202,7 @@ void limits_go_home(uint8_t cycle_mask)
     // Initialize and declare variables needed for homing routine.
     axislock = 0;
     n_active_axis = 0;
-    for (idx=0; idx<N_AXIS; idx++) {
+    for (idx=0; idx<N_AXIS_TOTAL; idx++) {
       // Set target location for active axes and setup computation for homing rate.
       if (bit_istrue(cycle_mask,bit(idx))) {
         n_active_axis++;
@@ -235,7 +235,7 @@ void limits_go_home(uint8_t cycle_mask)
       if (approach) {
         // Check limit state. Lock out cycle axes when they change.
         limit_state = limits_get_state();
-        for (idx=0; idx<N_AXIS; idx++) {
+        for (idx=0; idx<N_AXIS_TOTAL; idx++) {
           if (axislock & step_pin[idx]) {
             if (limit_state & (1 << idx)) {
               axislock &= ~(step_pin[idx]);
@@ -296,7 +296,7 @@ void limits_go_home(uint8_t cycle_mask)
   // triggering when hard limits are enabled or when more than one axes shares a limit pin.
   int32_t set_axis_position;
   // Set machine positions for homed limit switches. Don't update non-homed axes.
-  for (idx=0; idx<N_AXIS; idx++) {
+  for (idx=0; idx<N_AXIS_TOTAL; idx++) {
     // NOTE: settings.max_travel[] is stored as a negative value.
     if (cycle_mask & bit(idx)) {
       #ifdef HOMING_FORCE_SET_ORIGIN

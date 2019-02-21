@@ -445,7 +445,7 @@ uint8_t gc_execute_line(char *line)
   // Pre-convert XYZ coordinate values to millimeters, if applicable.
   uint8_t idx;
   if (gc_block.modal.units == UNITS_MODE_INCHES) {
-    for (idx=0; idx<N_AXIS; idx++) { // Axes indices are consistent, so loop may be used.
+    for (idx=0; idx<N_AXIS_TOTAL; idx++) { // Axes indices are consistent, so loop may be used.
       if (bit_istrue(axis_words,bit(idx)) ) {
         gc_block.values.xyz[idx] *= MM_PER_INCH;
       }
@@ -473,7 +473,7 @@ uint8_t gc_execute_line(char *line)
   // is active. The read pauses the processor temporarily and may cause a rare crash. For
   // future versions on processors with enough memory, all coordinate data should be stored
   // in memory and written to EEPROM only when there is not a cycle active.
-  float block_coord_system[N_AXIS];
+  float block_coord_system[N_AXIS_TOTAL];
   memcpy(block_coord_system,gc_state.coord_system,sizeof(gc_state.coord_system));
   if ( bit_istrue(command_words,bit(MODAL_GROUP_G12)) ) { // Check if called in block
     if (gc_block.modal.coord_select > N_COORDINATE_SYSTEM) { FAIL(STATUS_GCODE_UNSUPPORTED_COORD_SYS); } // [Greater than N sys]
@@ -515,7 +515,7 @@ uint8_t gc_execute_line(char *line)
       if (!settings_read_coord_data(coord_select,gc_block.values.ijk)) { FAIL(STATUS_SETTING_READ_FAIL); } // [EEPROM read fail]
 
       // Pre-calculate the coordinate data changes.
-      for (idx=0; idx<N_AXIS; idx++) { // Axes indices are consistent, so loop may be used.
+      for (idx=0; idx<N_AXIS_TOTAL; idx++) { // Axes indices are consistent, so loop may be used.
         // Update axes defined only in block. Always in machine coordinates. Can change non-active system.
         if (bit_istrue(axis_words,bit(idx)) ) {
           if (gc_block.values.l == 20) {
@@ -536,7 +536,7 @@ uint8_t gc_execute_line(char *line)
 
       // Update axes defined only in block. Offsets current system to defined value. Does not update when
       // active coordinate system is selected, but is still active unless G92.1 disables it.
-      for (idx=0; idx<N_AXIS; idx++) { // Axes indices are consistent, so loop may be used.
+      for (idx=0; idx<N_AXIS_TOTAL; idx++) { // Axes indices are consistent, so loop may be used.
         if (bit_istrue(axis_words,bit(idx)) ) {
           // WPos = MPos - WCS - G92 - TLO  ->  G92 = MPos - WCS - TLO - WPos
           gc_block.values.xyz[idx] = gc_state.position[idx]-block_coord_system[idx]-gc_block.values.xyz[idx];
@@ -555,7 +555,7 @@ uint8_t gc_execute_line(char *line)
       // NOTE: Tool offsets may be appended to these conversions when/if this feature is added.
       if (axis_command != AXIS_COMMAND_TOOL_LENGTH_OFFSET ) { // TLO block any axis command.
         if (axis_words) {
-          for (idx=0; idx<N_AXIS; idx++) { // Axes indices are consistent, so loop may be used to save flash space.
+          for (idx=0; idx<N_AXIS_TOTAL; idx++) { // Axes indices are consistent, so loop may be used to save flash space.
             if ( bit_isfalse(axis_words,bit(idx)) ) {
               gc_block.values.xyz[idx] = gc_state.position[idx]; // No axis word in block. Keep same axis position.
             } else {
@@ -589,7 +589,7 @@ uint8_t gc_execute_line(char *line)
           }
           if (axis_words) {
             // Move only the axes specified in secondary move.
-            for (idx=0; idx<N_AXIS; idx++) {
+            for (idx=0; idx<N_AXIS_TOTAL; idx++) {
               if (!(axis_words & (1<<idx))) { gc_block.values.ijk[idx] = gc_state.position[idx]; }
             }
           } else {
@@ -757,7 +757,7 @@ uint8_t gc_execute_line(char *line)
 
             // Convert IJK values to proper units.
             if (gc_block.modal.units == UNITS_MODE_INCHES) {
-              for (idx=0; idx<N_AXIS; idx++) { // Axes indices are consistent, so loop may be used to save flash space.
+              for (idx=0; idx<N_AXIS_TOTAL; idx++) { // Axes indices are consistent, so loop may be used to save flash space.
                 if (ijk_words & bit(idx)) { gc_block.values.ijk[idx] *= MM_PER_INCH; }
               }
             }
@@ -908,7 +908,7 @@ uint8_t gc_execute_line(char *line)
   // [15. Coordinate system selection ]:
   if (gc_state.modal.coord_select != gc_block.modal.coord_select) {
     gc_state.modal.coord_select = gc_block.modal.coord_select;
-    memcpy(gc_state.coord_system,block_coord_system,N_AXIS*sizeof(float));
+    memcpy(gc_state.coord_system,block_coord_system,N_AXIS_TOTAL*sizeof(float));
     system_flag_wco_change();
   }
 
@@ -926,7 +926,7 @@ uint8_t gc_execute_line(char *line)
       settings_write_coord_data(coord_select,gc_block.values.ijk);
       // Update system coordinate system if currently active.
       if (gc_state.modal.coord_select == coord_select) {
-        memcpy(gc_state.coord_system,gc_block.values.ijk,N_AXIS*sizeof(float));
+        memcpy(gc_state.coord_system,gc_block.values.ijk,N_AXIS_TOTAL*sizeof(float));
         system_flag_wco_change();
       }
       break;
@@ -936,7 +936,7 @@ uint8_t gc_execute_line(char *line)
       pl_data->condition |= PL_COND_FLAG_RAPID_MOTION; // Set rapid motion condition flag.
       if (axis_command) { mc_line(gc_block.values.xyz, pl_data); }
       mc_line(gc_block.values.ijk, pl_data);
-      memcpy(gc_state.position, gc_block.values.ijk, N_AXIS*sizeof(float));
+      memcpy(gc_state.position, gc_block.values.ijk, N_AXIS_TOTAL*sizeof(float));
       break;
     case NON_MODAL_SET_HOME_0:
       settings_write_coord_data(SETTING_INDEX_G28,gc_state.position);

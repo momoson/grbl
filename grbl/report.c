@@ -38,9 +38,9 @@ static void report_util_gcode_modes_M() { printPgmString(PSTR(" M")); }
 // static void report_util_comment_line_feed() { serial_write(')'); report_util_line_feed(); }
 static void report_util_axis_values(float *axis_value) {
   uint8_t idx;
-  for (idx=0; idx<N_AXIS; idx++) {
+  for (idx=0; idx<N_AXIS_TOTAL; idx++) {
     printFloat_CoordValue(axis_value[idx]);
-    if (idx < (N_AXIS-1)) { serial_write(','); }
+    if (idx < (N_AXIS_TOTAL-1)) { serial_write(','); }
   }
 }
 
@@ -204,7 +204,7 @@ void report_grbl_settings() {
   uint8_t idx, set_idx;
   uint8_t val = AXIS_SETTINGS_START_VAL;
   for (set_idx=0; set_idx<AXIS_N_SETTINGS; set_idx++) {
-    for (idx=0; idx<N_AXIS; idx++) {
+    for (idx=0; idx<N_AXIS_TOTAL; idx++) {
       switch (set_idx) {
         case 0: report_util_float_setting(val+idx,settings.steps_per_mm[idx],N_DECIMAL_SETTINGVALUE); break;
         case 1: report_util_float_setting(val+idx,settings.max_rate[idx],N_DECIMAL_SETTINGVALUE); break;
@@ -224,7 +224,7 @@ void report_probe_parameters()
 {
   // Report in terms of machine position.
   printPgmString(PSTR("[PRB:"));
-  float print_position[N_AXIS];
+  float print_position[N_AXIS_TOTAL];
   system_convert_array_steps_to_mpos(print_position,sys_probe_position);
   report_util_axis_values(print_position);
   serial_write(':');
@@ -236,7 +236,7 @@ void report_probe_parameters()
 // Prints Grbl NGC parameters (coordinate offsets, probing)
 void report_ngc_parameters()
 {
-  float coord_data[N_AXIS];
+  float coord_data[N_AXIS_TOTAL];
   uint8_t coord_select;
   for (coord_select = 0; coord_select <= SETTING_INDEX_NCOORD; coord_select++) {
     if (!(settings_read_coord_data(coord_select,coord_data))) {
@@ -425,9 +425,9 @@ void report_echo_line_received(char *line)
 void report_realtime_status()
 {
   uint8_t idx;
-  int32_t current_position[N_AXIS]; // Copy current state of the system position variable
+  int32_t current_position[N_AXIS_TOTAL]; // Copy current state of the system position variable
   memcpy(current_position,sys_position,sizeof(sys_position));
-  float print_position[N_AXIS];
+  float print_position[N_AXIS_TOTAL];
   system_convert_array_steps_to_mpos(print_position,current_position);
 
   // Report current machine state and sub-states
@@ -465,10 +465,10 @@ void report_realtime_status()
     case STATE_SLEEP: printPgmString(PSTR("Sleep")); break;
   }
 
-  float wco[N_AXIS];
+  float wco[N_AXIS_TOTAL];
   if (bit_isfalse(settings.status_report_mask,BITFLAG_RT_STATUS_POSITION_TYPE) ||
       (sys.report_wco_counter == 0) ) {
-    for (idx=0; idx< N_AXIS; idx++) {
+    for (idx=0; idx< N_AXIS_TOTAL; idx++) {
       // Apply work coordinate offsets and tool length offset to current position.
       wco[idx] = gc_state.coord_system[idx]+gc_state.coord_offset[idx];
       if (idx == TOOL_LENGTH_OFFSET_AXIS) { wco[idx] += gc_state.tool_length_offset; }

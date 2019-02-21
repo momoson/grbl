@@ -31,10 +31,10 @@ static uint8_t block_buffer_planned;  // Index of the optimally planned block
 
 // Define planner variables
 typedef struct {
-  int32_t position[N_AXIS];          // The planner position of the tool in absolute steps. Kept separate
+  int32_t position[N_AXIS_TOTAL];          // The planner position of the tool in absolute steps. Kept separate
                                      // from g-code position for movements requiring multiple line motions,
                                      // i.e. arcs, canned cycles, and backlash compensation.
-  float previous_unit_vec[N_AXIS];   // Unit vector of previous path line segment
+  float previous_unit_vec[N_AXIS_TOTAL];   // Unit vector of previous path line segment
   float previous_nominal_speed;  // Nominal speed of previous path line segment
 } planner_t;
 static planner_t pl;
@@ -323,8 +323,8 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
   #endif
 
   // Compute and store initial move distance data.
-  int32_t target_steps[N_AXIS], position_steps[N_AXIS];
-  float unit_vec[N_AXIS], delta_mm;
+  int32_t target_steps[N_AXIS_TOTAL], position_steps[N_AXIS_TOTAL];
+  float unit_vec[N_AXIS_TOTAL], delta_mm;
   uint8_t idx;
 
   // Copy position data based on type of motion being planned.
@@ -332,7 +332,7 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
     memcpy(position_steps, sys_position, sizeof(sys_position)); 
   } else { memcpy(position_steps, pl.position, sizeof(pl.position)); }
 
-  for (idx=0; idx<N_AXIS; idx++) {
+  for (idx=0; idx<N_AXIS_TOTAL; idx++) {
     // Calculate target position in absolute steps, number of steps for each axis, and determine max step events.
     // Also, compute individual axes distance for move and prep unit vector calculations.
     // NOTE: Computes true distance from converted step values.
@@ -395,9 +395,9 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
     // memory in the event of a feedrate override changing the nominal speeds of blocks, which can
     // change the overall maximum entry speed conditions of all blocks.
 
-    float junction_unit_vec[N_AXIS];
+    float junction_unit_vec[N_AXIS_TOTAL];
     float junction_cos_theta = 0.0;
-    for (idx=0; idx<N_AXIS; idx++) {
+    for (idx=0; idx<N_AXIS_TOTAL; idx++) {
       junction_cos_theta -= pl.previous_unit_vec[idx]*unit_vec[idx];
       junction_unit_vec[idx] = unit_vec[idx]-pl.previous_unit_vec[idx];
     }
@@ -447,7 +447,7 @@ void plan_sync_position()
   // TODO: For motor configurations not in the same coordinate frame as the machine position,
   // this function needs to be updated to accomodate the difference.
   uint8_t idx;
-  for (idx=0; idx<N_AXIS; idx++) {
+  for (idx=0; idx<N_AXIS_TOTAL; idx++) {
     pl.position[idx] = sys_position[idx];
   }
 }
