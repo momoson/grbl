@@ -223,6 +223,9 @@ void limits_go_home(uint8_t cycle_mask)
     }
     homing_rate *= sqrt(n_active_axis); // [sqrt(N_AXIS)] Adjust so individual axes all move at homing rate.
     sys.homing_axis_lock = ((axislock & 1)?step_pin[X_AXIS]:0)|((axislock & 2)?step_pin[Y_AXIS]:0)|((axislock & 4)?step_pin[Z_AXIS]:0) ;
+#ifdef ACTIVE_A_AXIS
+    sys.homing_axis_lock_a = ((axislock & 8)?step_pin[A_AXIS]:0);
+#endif
 
     // Perform homing cycle. Planner buffer should be empty, as required to initiate the homing cycle.
     pl_data->feed_rate = homing_rate; // Set current homing rate.
@@ -243,6 +246,9 @@ void limits_go_home(uint8_t cycle_mask)
           }
         }
         sys.homing_axis_lock = ((axislock & 1)?step_pin[X_AXIS]:0)|((axislock & 2)?step_pin[Y_AXIS]:0)|((axislock & 4)?step_pin[Z_AXIS]:0) ;
+#ifdef ACTIVE_A_AXIS
+        sys.homing_axis_lock_a = ((axislock & 8)?step_pin[A_AXIS]:0);
+#endif
       }
 
       st_prep_buffer(); // Check and prep segment buffer. NOTE: Should take no longer than 200us.
