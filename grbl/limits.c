@@ -217,12 +217,12 @@ void limits_go_home(uint8_t cycle_mask)
           else { target[idx] = -max_travel; }
         }
         // Apply axislock to the step port pins active in this cycle.
-        axislock |= step_pin[idx];
+        axislock |= 1 << idx;
       }
 
     }
     homing_rate *= sqrt(n_active_axis); // [sqrt(N_AXIS)] Adjust so individual axes all move at homing rate.
-    sys.homing_axis_lock = axislock;
+    sys.homing_axis_lock = ((axislock & 1)?step_pin[X_AXIS]:0)|((axislock & 2)?step_pin[Y_AXIS]:0)|((axislock & 4)?step_pin[Z_AXIS]:0) ;
 
     // Perform homing cycle. Planner buffer should be empty, as required to initiate the homing cycle.
     pl_data->feed_rate = homing_rate; // Set current homing rate.
@@ -236,13 +236,13 @@ void limits_go_home(uint8_t cycle_mask)
         // Check limit state. Lock out cycle axes when they change.
         limit_state = limits_get_state();
         for (idx=0; idx<N_AXIS_TOTAL; idx++) {
-          if (axislock & step_pin[idx]) {
+          if (axislock & (1<<idx)) {
             if (limit_state & (1 << idx)) {
-              axislock &= ~(step_pin[idx]);
+              axislock &= ~(1<<idx);
             }
           }
         }
-        sys.homing_axis_lock = axislock;
+        sys.homing_axis_lock = ((axislock & 1)?step_pin[X_AXIS]:0)|((axislock & 2)?step_pin[Y_AXIS]:0)|((axislock & 4)?step_pin[Z_AXIS]:0) ;
       }
 
       st_prep_buffer(); // Check and prep segment buffer. NOTE: Should take no longer than 200us.
