@@ -220,7 +220,11 @@ uint8_t gc_execute_line(char *line)
             } else { FAIL(STATUS_GCODE_UNSUPPORTED_COMMAND); } // [Unsupported G43.x command]
             mantissa = 0; // Set to zero to indicate valid non-integer G command.
             break;
+#ifdef ACTIVE_A_AXIS
+          case 54: case 55: case 56: case 57: //case 58: case 59:
+#else
           case 54: case 55: case 56: case 57: case 58: case 59:
+#endif
             // NOTE: G59.x are not supported. (But their int_values would be 60, 61, and 62.)
             word_bit = MODAL_GROUP_G12;
             gc_block.modal.coord_select = int_value - 54; // Shift to array indexing.

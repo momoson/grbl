@@ -71,7 +71,11 @@
 #define EEPROM_ADDR_BUILD_INFO     942U
 
 // Define EEPROM address indexing for coordinate parameters
+#ifdef ACTIVE_A_AXIS
+#define N_COORDINATE_SYSTEM 4  // Number of supported work coordinate systems (from index 1)
+#else
 #define N_COORDINATE_SYSTEM 6  // Number of supported work coordinate systems (from index 1)
+#endif
 #define SETTING_INDEX_NCOORD N_COORDINATE_SYSTEM+1 // Total number of system stored (from index 0)
 // NOTE: Work coordinate indices are (0=G54, 1=G55, ... , 6=G59)
 #define SETTING_INDEX_G28    N_COORDINATE_SYSTEM    // Home position 1
