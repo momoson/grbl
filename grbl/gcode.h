@@ -137,6 +137,9 @@
 #define WORD_X  10
 #define WORD_Y  11
 #define WORD_Z  12
+#ifdef ACTIVE_A_AXIS
+#define WORD_A  13
+#endif
 
 // Define g-code parser position updating flags
 #define GC_UPDATE_POS_TARGET   0 // Must be zero
@@ -184,14 +187,22 @@ typedef struct {
 
 typedef struct {
   float f;         // Feed
+#ifdef ACTIVE_A_AXIS
+  float ijk[4];    // I,J,K Axis arc offsets
+#else
   float ijk[3];    // I,J,K Axis arc offsets
+#endif
   uint8_t l;       // G10 or canned cycles parameters
   int32_t n;       // Line number
   float p;         // G10 or dwell parameters
   // float q;      // G82 peck drilling
   float r;         // Arc radius
   uint8_t t;       // Tool selection
+#ifdef ACTIVE_A_AXIS
+  float xyz[4];    // X,Y,Z,A Translational axes
+#else
   float xyz[3];    // X,Y,Z Translational axes
+#endif
 } gc_values_t;
 
 
